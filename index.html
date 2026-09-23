@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITSup</title>
+<link rel="icon" href="logo.jpg">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+<div id="offlineBanner" class="offline-banner hidden">📴 ออฟไลน์ — แสดงข้อมูลที่ cache ไว้ล่าสุด</div>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="logo.jpg" alt="logo" class="logo">
+    <span class="brand-name">ITSup</span>
+  </div>
+  <div class="admin-zone">
+    <a id="assetLink" href="#" target="_blank" class="ghost-btn small" title="IT Asset Dashboard">🖥 Asset</a>
+    <button id="langToggleBtn" class="ghost-btn small">EN</button>
+    <button id="themeToggleBtn" class="ghost-btn small">☀</button>
+    <span id="teamIcon" class="admin-icon" title="Team Login" style="opacity:.4">👤</span>
+    <span id="adminIcon" class="admin-icon" title="">⚙</span>
+    <span id="adminBadge" class="admin-badge hidden">ADMIN</span>
+    <button id="toolsBtn" class="hidden">Tools</button>
+    <button id="quickLogBtn" class="hidden">Quick Log</button>
+    <button id="dashboardBtn" class="hidden">Dashboard</button>
+    <button id="logoutBtn" class="hidden" data-i18n="logout">ออกจากระบบ</button>
+  </div>
+</header>
+
+<main id="app">
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="ค้นหา..." data-i18n-ph="search">
+    <button id="favToggleBtn" class="ghost-btn">⭐ <span data-i18n="favorites">รายการโปรด</span></button>
+    <button id="exportBtn" class="ghost-btn" data-i18n="export">Export</button>
+    <button id="importBtn" class="ghost-btn hidden" data-i18n="import">Import CSV</button>
+    <input type="file" id="importFile" accept=".csv" class="hidden">
+  </div>
+  <div id="categoryList"></div>
+  <button id="addCategoryBtn" class="hidden add-cat-btn" data-i18n="addCategory">+ เพิ่มหัวข้อใหญ่</button>
+</main>
+
+<!-- Admin Login Modal -->
+<div id="loginModal" class="modal hidden">
+  <div class="modal-box">
+    <h3>Admin Login</h3>
+    <input type="text" id="loginUser" placeholder="Username">
+    <input type="password" id="loginPass" placeholder="Password">
+    <div class="modal-actions">
+      <button id="loginSubmit" data-i18n="login">เข้าสู่ระบบ</button>
+      <button id="loginCancel" data-i18n="cancel">ยกเลิก</button>
+    </div>
+    <div id="loginError" class="error hidden">Username หรือ Password ไม่ถูกต้อง</div>
+  </div>
+</div>
+
+<!-- Team Login Modal -->
+<div id="teamLoginModal" class="modal hidden">
+  <div class="modal-box">
+    <h3>Team Login (สำหรับคอมเมนต์)</h3>
+    <input type="text" id="teamUser" placeholder="Username">
+    <input type="password" id="teamPass" placeholder="Password">
+    <div class="modal-actions">
+      <button id="teamLoginSubmit">เข้าสู่ระบบ</button>
+      <button id="teamLoginCancel">ยกเลิก</button>
+    </div>
+    <div id="teamLoginError" class="error hidden">Username หรือ Password ไม่ถูกต้อง</div>
+  </div>
+</div>
+
+<!-- Item Edit Modal -->
+<div id="itemModal" class="modal hidden">
+  <div class="modal-box wide">
+    <h3 id="itemModalTitle">เพิ่มรายการ</h3>
+    <input type="hidden" id="itemId">
+    <input type="text" id="itemCategory" placeholder="หัวข้อใหญ่ (Category)">
+    <input type="text" id="itemSubCategory" placeholder="หัวข้อย่อยชั้นที่ 2 (Sub-category) — เว้นว่างได้">
+    <input type="text" id="itemTitle" placeholder="หัวข้อย่อย (Title)">
+    <textarea id="itemDesc" placeholder="รายละเอียด (Description)" rows="3"></textarea>
+    <select id="itemType">
+      <option value="code">Code Snippet</option>
+      <option value="checklist">Checklist (ขึ้นบรรทัดใหม่ต่อ 1 ข้อ)</option>
+    </select>
+    <textarea id="itemCode" placeholder="โค้ด หรือ รายการ checklist (1 บรรทัดต่อ 1 ข้อ)" rows="8"></textarea>
+    <label class="check-row"><input type="checkbox" id="itemPinned"> ปักหมุด (Pin)</label>
+    <input type="text" id="itemBadge" placeholder="Badge (เช่น แนะนำ, ใหม่) — เว้นว่างได้">
+    <div class="modal-actions">
+      <button id="itemSave">บันทึก</button>
+      <button id="itemCancel">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Version History Modal -->
+<div id="historyModal" class="modal hidden">
+  <div class="modal-box wide">
+    <h3>ประวัติการแก้ไข</h3>
+    <div id="historyContent">กำลังโหลด...</div>
+    <div class="modal-actions"><button id="historyClose">ปิด</button></div>
+  </div>
+</div>
+
+<!-- Dashboard Modal -->
+<div id="dashboardModal" class="modal hidden">
+  <div class="modal-box wide">
+    <h3>Admin Dashboard</h3>
+    <div id="dashboardContent">กำลังโหลด...</div>
+    <div class="modal-actions"><button id="dashboardClose">ปิด</button></div>
+  </div>
+</div>
+
+<!-- Quick Log Modal -->
+<div id="quickLogModal" class="modal hidden">
+  <div class="modal-box wide">
+    <h3>Quick Log — บันทึกงานที่แก้วันนี้</h3>
+    <input type="text" id="qlMachine" placeholder="ชื่อเครื่อง/สาขา (เช่น PC-ASK-012)">
+    <textarea id="qlNote" placeholder="บันทึกสั้นๆ ว่าแก้อะไร" rows="2"></textarea>
+    <div class="modal-actions">
+      <button id="qlSave">บันทึก</button>
+      <button id="qlCancel">ปิด</button>
+    </div>
+    <div id="qlHistory" style="margin-top:10px">กำลังโหลด...</div>
+  </div>
+</div>
+
+<!-- Admin Tools Modal (Phase 5 — IP Lookup, DNS Lookup, VirusTotal, UptimeRobot) -->
+<div id="toolsModal" class="modal hidden">
+  <div class="modal-box wide">
+    <h3>Admin Tools</h3>
+
+    <div class="tool-block">
+      <div class="tool-title">🌐 IP Geolocation Lookup</div>
+      <div class="comment-input-row">
+        <input type="text" id="ipInput" placeholder="เช่น 8.8.8.8">
+        <button id="ipLookupBtn">ค้นหา</button>
+      </div>
+      <div id="ipResult" class="tool-result"></div>
+    </div>
+
+    <div class="tool-block">
+      <div class="tool-title">🔎 DNS Lookup (Cloudflare DoH)</div>
+      <div class="comment-input-row">
+        <input type="text" id="dnsInput" placeholder="เช่น google.com">
+        <button id="dnsLookupBtn">ค้นหา</button>
+      </div>
+      <div id="dnsResult" class="tool-result"></div>
+    </div>
+
+    <div class="tool-block">
+      <div class="tool-title">🛡 VirusTotal URL Check</div>
+      <div class="comment-input-row">
+        <input type="text" id="vtInput" placeholder="วาง URL ที่ต้องการเช็ค">
+        <button id="vtCheckBtn">เช็ค</button>
+      </div>
+      <div id="vtResult" class="tool-result"></div>
+    </div>
+
+    <div class="tool-block">
+      <div class="tool-title">📡 UptimeRobot Status</div>
+      <button id="uptimeRefreshBtn">รีเฟรชสถานะ</button>
+      <div id="uptimeResult" class="tool-result"></div>
+    </div>
+
+    <div class="modal-actions"><button id="toolsClose">ปิด</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
