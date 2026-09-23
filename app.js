@@ -1,6 +1,6 @@
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwYWOmSkZHssBSlTpRKLANBEp3U4_JCjNFXPfIMdhq24R7NeKmF0nZExqeBdCum5dE6/exec";
 
-const ASSET_DASHBOARD_URL = "https://webthai.github.io/it-asset-dashboard/";
+const ASSET_DASHBOARD_URL = "https://webthai.github.io/IT/";
 
 let DATA = [];
 let COMMENTS = [];
