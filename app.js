@@ -258,6 +258,14 @@ function renderItem(item){
   };
   actions.appendChild(copyBtn);
 
+  if(!isChecklist){
+    const downloadBtn = document.createElement("button");
+    downloadBtn.className = "btn-download";
+    downloadBtn.textContent = "Download";
+    downloadBtn.onclick = ()=> downloadItemAsFile(item);
+    actions.appendChild(downloadBtn);
+  }
+
   if(isAdmin){
     const editBtn = document.createElement("button");
     editBtn.className = "btn-edit";
@@ -343,6 +351,28 @@ async function vote(id, type){
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+// ---- Download as file — guesses the right extension from the category name ----
+function guessExtension(category){
+  const c = (category || "").toLowerCase();
+  if(c.includes(".bat") || c.includes("bat ")) return "bat";
+  if(c.includes("powershell")) return "ps1";
+  if(c.includes("registry") || c.includes(".reg")) return "reg";
+  if(c.includes("python")) return "py";
+  return "txt";
+}
+function downloadItemAsFile(item){
+  const ext = guessExtension(item.Category);
+  const safeName = (item.Title || "script").replace(/[\\/:*?"<>|]/g, "_").trim() || "script";
+  const blob = new Blob([item.CodeContent || ""], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${safeName}.${ext}`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(`ดาวน์โหลด ${safeName}.${ext} แล้ว`);
 }
 
 async function loadData(){

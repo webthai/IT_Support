@@ -54,6 +54,7 @@ button:hover,.ghost-btn:hover{opacity:.9}
 .btn-edit{background:#5c6270}
 .btn-delete{background:var(--danger)}
 .btn-copy{background:#2f9e6b}
+.btn-download{background:#3468d6}
 .btn-fav{background:transparent;color:#f5c518;font-size:16px;padding:2px 6px}
 .btn-history{background:transparent;border:1px solid var(--border);color:var(--muted)}
 
