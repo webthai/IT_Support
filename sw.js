@@ -1,4 +1,4 @@
-const CACHE_NAME = "itsup-cache-v2";
+const CACHE_NAME = "itsup-cache-v3";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -32,10 +32,19 @@ self.addEventListener("fetch", (event)=>{
   // (Apps Script's cross-origin response can't reliably be read/cached from a Service Worker).
   if(url.includes("script.google.com")) return;
 
-  // Static assets only: cache-first, fall back to network
+  // Static assets: network-first. Always tries to fetch the latest deployed file first —
+  // this way updating index.html/app.js/style.css on GitHub takes effect immediately on
+  // next load, with no stale-cache surprises. Cache is only used as a fallback when
+  // there's genuinely no network (offline), which is the whole point of Phase 2 #8 / #20.
   if(STATIC_ASSETS.some(a => url.includes(a.replace("./","")))){
     event.respondWith(
-      caches.match(event.request).then(cached => cached || fetch(event.request))
+      fetch(event.request)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
     );
   }
 });
